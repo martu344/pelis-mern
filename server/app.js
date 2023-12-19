@@ -1,4 +1,5 @@
 const express = require('express')
+const path = require('path')
 require('dotenv').config()
 const mongoose = require('mongoose')
 const mongoStore = require("connect-mongo")
@@ -10,6 +11,8 @@ const passport = require('passport')
 const LocalStrategy = require ('passport-local').Strategy
 const local = require('./config/passport')
 const flash = require('connect-flash')
+const googleRoutes = require('./routes/googleRoutes')
+const google = require ('./config/google')
 
 const app = express()
 
@@ -33,6 +36,7 @@ app.use(express.urlencoded({extended:true}))
 // Configuracion de cors para conectar FRONT y BACK (diferentes puertos)
 const corsOptions = {
     origin: 'http://localhost:3000',
+    methods: "GET,POST,DELETE,PUT",
     credentials: true // permitir cookies en el navegador
 }
 app.use(cors(corsOptions)) 
@@ -60,4 +64,8 @@ const connectDataBase = async () => {
 
 connectDataBase()
 
+
+
+google.googleStrategy(passport)
 app.use(userRoutes,pelisRoutes)
+app.use('/auth', googleRoutes)
