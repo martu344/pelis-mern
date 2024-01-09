@@ -6,9 +6,7 @@ import '../sketch.css'
 import {NavLink, Link, useNavigate} from "react-router-dom"
 
 function Header(){
-  const {user , setUser} = useContext(UserContext)
-  const [loggedOut,setLoggedOut] = useState(false) 
-  const {profileName} = useContext(UserContext)
+  const {user , setUser, profileName} = useContext(UserContext)
   const navigate = useNavigate()
    // Al cargar el componente, verificamos si la información del usuario está en localStorage
    useEffect(() => {
@@ -27,33 +25,12 @@ function Header(){
     }
   }, [user]);
 
-   // Busca los datos de autenticacion de Google
-useEffect(() => {
-  async function googleAuthentication() {
-    if(user || loggedOut) {
-      return
-    }
-    try{
-    const response = await axios.get('http://localhost:3001/auth/google/user', { withCredentials: true });
-    if (response.data.user) {
-      setUser(response.data.user);
-      console.log('userGoogle front', response.data.user)
-    } else {
-      setUser(null);
-    }  
-    } catch (e) {
-      console.log('el error de google es', e)
-    }
-  }
-  googleAuthentication();
-}, [user, loggedOut]);
-
   const LogOut = async () => {
     localStorage.removeItem('user')
     const data = await axios.request({method:"GET",url:"http://localhost:3001/logout"})
     console.log('vengo de logout',data)
     setUser(false) //importante setear a user en falso así se borra el usuario en el front
-    navigate("/signin")
+    navigate("/")
   }
 
   return (

@@ -24,7 +24,11 @@ function MyList(){
   return (
     <>
         <Header />
-        <h1 className='text-light ms-3 text-center'>My List - {profileName}</h1>
+        <h1 className='text-light ms-3 text-center'>My List {profileName ? "- " + profileName : ""}</h1>
+        {user ? "" : <div className="d-flex justify-content-center mt-3 mb-5">
+            <h4 class="text-light me-3">Do you want to add movies on your list?</h4>
+            <Link to="/signin" style={{textDecoration:"none",fontSize:"1.25rem"}}>Sign in</Link>
+          </div>}
         {list != [] ? 
         <>
           <div className="d-flex flex-wrap px-5 mb-5">
