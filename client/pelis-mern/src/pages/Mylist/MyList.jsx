@@ -1,35 +1,50 @@
+import axios from 'axios';
+import { useContext, useEffect, useState } from 'react';
+import Header from '../../components/Header';
 import '../../sketch.css'
+import { UserContext } from '../../UserContext';
+import { Link } from 'react-router-dom';
 
 function MyList(){
-  
+  const {user, profileId, profileName, list, setList} = useContext(UserContext)
+  useEffect(()=>{
+    async function getList(){
+      try{
+        const response = await axios.post("http://localhost:3001/lists/get-my-list", {id:user._id, profId:profileId}, {withCredentials:true})
+        console.log(response)
+        if(response.data.list.length > 0){
+          console.log("hay")
+          setList(response.data.list)
+        }
+      }catch(err){console.log(err)}
+    }
+    getList()
+  },[])
+  console.log(list)
   return (
     <>
-        <section class="news px-5">
-            <h3 class="text-center text-uppercase text-light mb-5">News</h3>
-            <div class="news-container d-flex flex-nowrap">
-                <div class="d-flex flex-column mx-3">
-                    <img src="cine.PNG" alt="News IMG" class="mb-3"/>
-                    <p class="news-title ms-1">Review of files in 3D format becoming more acceptable</p>
-                </div>
-                <div class="d-flex flex-column mx-3">
-                    <img src="cine.PNG" alt="News IMG" class="mb-3"/>
-                    <p class="news-title ms-1">Review of files in 3D format becoming more acceptable</p>
-                </div>
-                <div class="d-flex flex-column mx-3">
-                    <img src="cine.PNG" alt="News IMG" class="mb-3"/>
-                    <p class="news-title ms-1">Review of files in 3D format becoming more acceptable</p>
-                </div>
-            </div>
-            <div class="news-slide my-5 d-flex justify-content-between">
-                <button><i class="bi bi-arrow-left ms-2 mb-3"></i></button>
-                <div class="mt-4"> 
-                    <i class="fa-regular fa-circle" style={{color:"#d70f0f"}}></i> 
-                    <i class="fa-solid fa-circle" style={{color:"#d70f0f"}}></i>
-                    <i class="fa-regular fa-circle" style={{color:"#d70f0f"}}></i>
-                </div>
-                <button><i class="bi bi-arrow-right me-2 mb-3"></i></button>
-            </div>
-        </section>
+        <Header />
+        <h1 className='text-light ms-3 text-center'>My List - {profileName}</h1>
+        {list != [] ? 
+        <>
+          <div className="d-flex flex-wrap px-5 mb-5">
+          {list.length > 0 ? list.map((mov)=>{
+            let movieLink = `/movie/${mov.id}`
+            return(
+              <Link to={movieLink} style={{textDecoration:"none"}}>
+                  <div class="movie mx-2 mb-4 p-4 position-relative" key={mov.id}>
+                      <img src={mov.primaryImage === null ? "tba.jpg" : mov.primaryImage.url} alt="Movie IMG" class="mb-3" />
+                      <p class="movie-title mb-2">{mov.titleText.text.length<25 ? mov.titleText.text : mov.titleText.text.slice(0,15) + "..."}</p>
+                      <p class="movie-description m-0">{mov.runtime === null ? "???" : mov.runtime.seconds/60} min | <span className="text-uppercase">{mov.genres.genres[0].text}</span></p>
+                  </div>
+              </Link>
+            )
+          }) : <h3 className="text-light">There are no movies in your list. Consider adding some.</h3>}
+          </div>
+        </>
+          : <div class="mx-4 d-flex justify-content-center">
+          <img src="/icon.png" alt="" className="loading-animation"></img>
+        </div>}
     </>
   );
 }

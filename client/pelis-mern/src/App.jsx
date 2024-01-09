@@ -11,15 +11,17 @@ import Search from './pages/search/Search';
 import Profiles from "./pages/profile/Profiles"
 import CreateProfile from './pages/profile/CreateProfile';
 import EditProfile from './pages/profile/EditProfile';
+import MyList from './pages/Mylist/MyList';
 
 
 function App() {
 const [dataSlide, setDataSlide] = useState([]);
 const [user, setUser] = useState(null);
 const [busqueda,setBusqueda]=useState("")
-const linkStyle = {
-  textDecoration:"none"
-}
+const [loggedOut,setLoggedOut] = useState(false)
+const [profileName,setProfileName] = useState(null)
+const [profileId, setProfileId] = useState(null)
+const [list, setList] = useState([])
 
   useEffect(()=>{ //useEffect para el llamado de la API
       async function llamadoHero(){
@@ -29,9 +31,10 @@ const linkStyle = {
         }llamadoHero();
       },[]) 
 
+
   return (
     <>
-    <UserContext.Provider value={{user, setUser, busqueda, setBusqueda, linkStyle}}>
+    <UserContext.Provider value={{user, setUser, busqueda, setBusqueda, profileName , setProfileName, profileId, setProfileId, list, setList}}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home dataSlide={dataSlide}/>}></Route>
@@ -42,6 +45,7 @@ const linkStyle = {
           <Route path="/movie/:id" element={<Movie/>}></Route>
           <Route path="/profiles" element={<Profiles/>}></Route>
           <Route path="/edit-profile/:id" element={<EditProfile/>}></Route>
+          <Route path="/mylist" element={<MyList/>}></Route>
         </Routes>
       </BrowserRouter>
     </UserContext.Provider>

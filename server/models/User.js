@@ -8,7 +8,6 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: true,
         unique: true,
     },
     password: {
@@ -19,7 +18,12 @@ const userSchema = new mongoose.Schema({
         type: String,
         unique: true,
         sparse: true  // permite documentos sin el campo googleId
-      },
+    },
+    twitterId: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
     profiles:[{
         image:{
             type:String,
@@ -78,6 +82,32 @@ userSchema.methods.editarPerfil = async function(id, index, name, image){
         console.log(err)
     }
     console.log("actualizado")
+    return user.save()
+}
+
+userSchema.methods.addToMyList = async function (id, profId, movie) {
+    let user = await User.findById(id)
+    user.skipPreSave = true
+    const index = user.profiles.findIndex(prof => prof._id == profId)
+    try{
+        user.profiles[index].myList.push(movie) 
+    } catch (err) {
+        console.log(err)
+    }
+    console.log("agregado")
+    return user.save()
+}
+
+userSchema.methods.deleteFromMyList = async function (id, profId, movieId) {
+    let user = await User.findById(id)
+    user.skipPreSave = true
+    const index = user.profiles.findIndex(prof => prof._id == profId)
+    try{
+        user.profiles[index].myList = user.profiles[index].myList.filter(m => m.id !== movieId)
+    } catch (err) {
+        console.log(err)
+    }
+    console.log("borrado")
     return user.save()
 }
   
