@@ -1,11 +1,14 @@
-import { useState } from 'react'
-import {NavLink} from "react-router-dom"
+import { useState, useContext } from 'react'
+import {NavLink, Navigate} from "react-router-dom"
+import { UserContext } from '../../UserContext';
+import axios from 'axios'
 
 
 const SignIn = () => {
-  
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [login, setLogin] = useState(false)  // state para manejar el login del usuario y redirigir a home
+  const { setUser } = useContext(UserContext) // useContext para manejar el estado del usuario en toda la app
 
   const datosEmail = (e) => {
     setEmail(e.target.value);
@@ -17,11 +20,30 @@ const SignIn = () => {
 
   const enviarDatos = (e) => {
     e.preventDefault();
-    
-    console.log('Email:', email);
-    console.log('Password:', password);
-   
-  };
+
+    const userData = { email , password}
+
+    axios.post('http://localhost:3001/signin', userData, { withCredentials: true })
+      .then(response => { 
+        if(response.data.mensaje == 'Credenciales incorrectas'){
+          setLogin(true) 
+          } else if (response.data.mensaje == 'Inicio de sesion exitoso' ){
+            setLogin("exitoso")
+            setUser(response.data.user)
+          }
+      })
+      .catch(error => {
+        if(error.response.data.message == 'Credenciales incorrectas'){
+          setLogin(true) }
+      })
+    };
+
+
+    if (login == "exitoso") {
+        return <Navigate to="/profiles"/>;
+    }
+
+ 
 
   return (
     <div className='d-flex flex-column align-items-center text-center justify-content-center w-100 textWhite'>
@@ -30,6 +52,7 @@ const SignIn = () => {
         </div>
         <div className='d-flex flex-column ancho justify-content-start'>
             <h2 className='text-start'>Inicio de Sesión</h2>
+            {login?<p> Credenciales incorrectas!</p>:null}
             <form onSubmit={enviarDatos}>
                 <div className='d-flex flex-column'>
                     <label className='p-2 text-start' htmlFor="email">Correo Electrónico:</label>
@@ -42,14 +65,14 @@ const SignIn = () => {
             <button className='btn colorButton ancho mt-2 p-2' type="submit">Continuar</button>
             </form>
             <p class="align-self-start mt-2">Al continuar, aceptas las <a href="">Condiciones de uso</a> y el <a href="">Aviso de privacidad</a> de Movies Hub</p>
-            <div class="d-flex flex-column">
-                <button className='btn colorButton p-2 btnRegistro mb-2'><i class="bi bi-google pe-1"></i>Registrese con Google</button>
-                <button className='btn colorButton p-2 btnRegistro'><i class="bi bi-instagram pe-1"></i>Registrese con Instagram</button>
+
+            <div class="d-flex">
+              <a href='http://localhost:3001/auth/google' className='pe-2'><button className='btn colorButton p-2 btnRegistro'><i class="bi bi-google pe-1 iconRegister"></i>Registrese con Google</button></a>
+              <a href='http://localhost:3001/auth/twitter' className='pe-2'><button className='btn colorButton p-2 btnRegistro'><i class="bi bi-twitter pe-1 iconRegister"></i>Registrese con Twitter</button></a>  
             </div>
         </div>
-        <div class="d-flex  pt-2">
+        <div class="d-flex  pt-2">  
             <p className='pe-2'>¿No tienes cuenta en Movies Hub?</p><NavLink to="/signup"><a href="" className='ps-2'>Crear tu cuenta</a></NavLink>
-            {/* <button className="btn colorButton ancho p-2">Crear tu cuenta de Movies Hub</button> */}
         </div>
       
     </div>
